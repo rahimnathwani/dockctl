@@ -21,6 +21,9 @@ def _connect(timeout: float | None) -> socket.socket:
     except (FileNotFoundError, ConnectionRefusedError):
         s.close()
         raise NotRunning("daemon not running — start it with `dockctl daemon start`") from None
+    except OSError as e:  # e.g. a socket path over macOS's 104-byte limit
+        s.close()
+        raise NotRunning(f"can't reach the daemon at {SOCKET_PATH}: {e}") from None
     return s
 
 
