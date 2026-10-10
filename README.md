@@ -6,6 +6,8 @@ Drive an AJAZZ / Mirabox "Stream Dock" from the command line on macOS, without t
 - **Small daemon**: a LaunchAgent owns the USB device, draws the keys, runs actions, and redraws after unplug/replug, sleep and reboot.
 - **Agent-friendly**: `--json` output, stable exit codes, PNG previews an agent can look at, overlays for status lights, and `ask` / `wait` for physical human-in-the-loop confirmation.
 
+![The starter page: keys for driving Claude Code, with date, free disk space and time down the side](docs/starter.png)
+
 ## Why not the vendor app?
 
 The vendor app ("Stream Dock AJAZZ" / "Stream Dock" by Mirabox) is a GUI for setting up a dock by hand. dockctl is for people who want to drive the dock from scripts and coding agents.
@@ -72,7 +74,7 @@ That installs uv if needed, installs `dockctl` as a uv tool, then runs `dockctl 
 
 1. **Finds the device.** It carries on if it isn't plugged in yet.
 2. **Quits the vendor app** if it's running. The vendor app and dockctl can't share the device; also remove "Stream Dock AJAZZ" from Login Items.
-3. **Creates `~/.config/dockctl/config.toml`.** It imports your layout from the vendor app if it finds one, otherwise writes a starter page.
+3. **Creates `~/.config/dockctl/config.toml`.** It imports your layout from the vendor app if it finds one, otherwise writes the [starter page](#starter-page) for Claude Code.
 4. **Installs the LaunchAgent**, so the daemon runs now and at every login.
 5. **Asks for Accessibility permission**, needed only for keys that type text or press hotkeys.
 
@@ -120,6 +122,26 @@ dockctl ask "Deploy to prod?" -o Deploy:green -o Cancel:red --timeout 300
 ```
 
 Keys 1-15 are buttons with screens. 16-18, the narrow side column, are screens without switches: use them for clocks, polled status and overlays. Keys can also be addressed as `ROW,COL` (`2,3` = key 8, `1,6` = key 16).
+
+## Starter page
+
+Without a vendor layout to import, setup writes a page for driving Claude Code (pictured above); it suits other terminal agents too. Text keys paste into whichever window has focus and press Return.
+
+| row | colour | keys | needs focus on |
+|---|---|---|---|
+| 1 | green | Yes, Continue, Keep going, Done, How's it going? | agent prompt |
+| 2 | blue, purple, amber | Commit & push, Commit to main, Make it excellent, Run tests, Stop (Esc) | agent prompt |
+| 3 | grey, red | New Claude, Resume Claude, Compact, Model, Clear context | shell for the first two, agent prompt for the rest |
+| side | — | date, free disk space, time (`[global]`, so on every page) | — |
+
+**Choosing your own keys.** Count what you actually type, locally, rather than guessing:
+
+- **Agent prompts**: user messages in `~/.claude/projects/*/*.jsonl` (Claude Code transcripts). Short repeated replies and slash commands are the candidates.
+- **Shell commands**: `atuin`, or `~/.zsh_history`.
+- **Rank** by times typed × characters saved: a long command you type daily beats a two-letter one.
+- **Labels**: a plain verb or phrase on every key; the icon only reinforces it.
+- **Colour** by row or purpose, and keep anything destructive (`/clear`) red and away from Yes.
+- **Leave out** commands with side effects you'd regret on a mis-press, such as jobs that send email or deploy.
 
 ## Files
 

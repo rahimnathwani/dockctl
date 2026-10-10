@@ -40,19 +40,144 @@ STARTER = """\
 # dockctl config — the single source of truth for your Stream Dock.
 # Edit by hand or with `dockctl set`; the daemon reloads on save.
 # Run `dockctl guide` for the full reference.
+#
+# The starter page drives Claude Code (or any terminal agent). Text keys paste into
+# whichever window has focus and press Return. Rows: answers (green), requests (blue,
+# purple), session (grey). Clear is the one key that throws work away, so it is red
+# and as far from Yes as it can be.
 
 brightness = 70
-start_page = "main"
+start_page = "claude"
 
 [style]  # defaults for every key; any key can override
 bg = "#18181b"
 fg = "#fafafa"
 
-[pages.main.1]
-label = "dockctl"
-icon = "🎛"
-run = "open https://github.com/"
-note = "starter key — replace me"
+# Row 1: answer the agent
+
+[pages.claude.1]
+label = "Yes"
+icon = "✅"
+bg = "#166534"
+text = "yes"
+enter = true
+
+[pages.claude.2]
+label = "Continue"
+icon = "▶️"
+bg = "#166534"
+text = "continue"
+enter = true
+
+[pages.claude.3]
+label = "Keep going"
+icon = "🏃"
+bg = "#166534"
+text = "Great. Keep going."
+enter = true
+
+[pages.claude.4]
+label = "Done"
+icon = "👍"
+bg = "#166534"
+text = "done"
+enter = true
+
+[pages.claude.5]
+label = "How's it going?"
+icon = "💬"
+bg = "#166534"
+text = "how is it going?"
+enter = true
+
+# Row 2: ask for something
+
+[pages.claude.6]
+label = "Commit & push"
+icon = "📦"
+bg = "#1e3a8a"
+text = "commit and push"
+enter = true
+
+[pages.claude.7]
+label = "Commit to main"
+icon = "🚀"
+bg = "#1e3a8a"
+text = "commit and push to main"
+enter = true
+
+[pages.claude.8]
+label = "Make it excellent"
+icon = "✨"
+bg = "#5b21b6"
+text = "what can we do to make this truly excellent?"
+enter = true
+
+[pages.claude.9]
+label = "Run tests"
+icon = "🧪"
+bg = "#5b21b6"
+text = "run the tests and fix any failures"
+enter = true
+
+[pages.claude.10]
+label = "Stop"
+icon = "✋"
+bg = "#92400e"
+hotkey = "escape"
+note = "Esc interrupts Claude Code"
+
+# Row 3: session. New/Resume need a shell prompt; the rest need the Claude prompt.
+
+[pages.claude.11]
+label = "New Claude"
+icon = "✳️"
+bg = "#374151"
+text = "claude"
+enter = true
+
+[pages.claude.12]
+label = "Resume Claude"
+icon = "↩️"
+bg = "#374151"
+text = "claude --resume"
+enter = true
+
+[pages.claude.13]
+label = "Compact"
+icon = "🗜"
+bg = "#374151"
+text = "/compact"
+enter = true
+
+[pages.claude.14]
+label = "Model"
+icon = "🧠"
+bg = "#374151"
+text = "/model"
+enter = true
+
+[pages.claude.15]
+label = "Clear context"
+icon = "🧹"
+bg = "#991b1b"
+text = "/clear"
+enter = true
+
+# Side column (display only): shown on every page that doesn't set these keys itself
+
+[global.16]
+poll = "date '+%a%n%-d %b'"
+every = 60
+
+[global.17]
+poll = "df -h / | awk 'NR==2{print \\"Disk\\\\n\\" $4 \\" free\\"}'"
+every = 300
+
+[global.18]
+poll = "date +%H:%M"
+every = 15
+mono = true
 """
 
 

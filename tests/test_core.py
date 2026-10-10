@@ -1,7 +1,7 @@
 import pytest
 
 from dockctl.actions import hotkey_script
-from dockctl.config import Config, ConfigError
+from dockctl.config import Config, ConfigError, init_config
 from dockctl.device import MODELS
 from dockctl.render import Face, chunk_text, parse_color, render_face
 
@@ -36,6 +36,14 @@ def test_empty_page_survives_save(tmp_path):
     c.ensure_page("other")
     c.save()
     assert Config(tmp_path / "c.toml", strict=True).pages() == ["main", "other"]
+
+
+def test_starter_config_is_valid(tmp_path):
+    assert init_config(tmp_path / "c.toml")
+    c = Config(tmp_path / "c.toml", strict=True)
+    c.validate(max_key=18)
+    assert c.doc["start_page"] in c.pages()
+    assert c.key("claude", 18).options["poll"] == "date +%H:%M"  # globals show on the page
 
 
 def test_validation(cfg):
