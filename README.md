@@ -1,17 +1,64 @@
 # dockctl
 
-Drive an AJAZZ AKP153E stream dock (Mirabox 293S family) from the command line, without the vendor "Stream Dock AJAZZ" app.
+Drive an AJAZZ / Mirabox "Stream Dock" from the command line on macOS, without the vendor app.
 
 - **Config as code**: one TOML file defines every page and key. Edit it by hand or with `dockctl set`; the daemon hot-reloads it.
 - **Small daemon**: a LaunchAgent owns the USB device, draws the keys, runs actions, and redraws after unplug/replug, sleep and reboot.
 - **Agent-friendly**: `--json` output, stable exit codes, PNG previews an agent can look at, overlays for status lights, and `ask` / `wait` for physical human-in-the-loop confirmation.
+
+## Why not the vendor app?
+
+The vendor app ("Stream Dock AJAZZ" / "Stream Dock" by Mirabox) is a GUI for setting up a dock by hand. dockctl is for people who want to drive the dock from scripts and coding agents.
+
+| | vendor app | dockctl |
+|---|---|---|
+| **Configure** | GUI only; profiles are JSON with generated IDs | one commented TOML file, or `dockctl set` |
+| **Version control / dotfiles** | impractical | yes: one file |
+| **Scripts and agents** | no CLI or API | every command scriptable, `--json`, exit codes |
+| **Live status on keys** | only via its plugins | `overlay`, `banner`, `poll` keys |
+| **Ask a human** | no | `dockctl ask "Deploy?"` waits for a key press |
+| **Footprint** | 1.1 GB Qt + embedded Chromium app, plus plugin processes | small Python daemon, no UI |
+| **When it isn't running** | keys go dark | daemon starts at login and restarts if it crashes |
+| **Plugin store** (OBS, weather, …) | yes | no; use `run` / `poll` with your own commands |
+| **Platforms** | macOS, Windows | macOS only |
+
+Typical uses:
+
+- **Agent approvals**: a coding agent runs `dockctl ask` and waits for you to press Approve or Reject on the device.
+- **Build status**: a side key shows the CI or test state.
+- **Prompt nudges**: a key types "Keep going." into the agent's terminal.
+- **Per-project keys**: an agent can add a page of keys for the repo it's working in.
+
+Stick with the vendor app if you want its GUI editor, its plugins, Windows, or a model dockctl doesn't support.
+
+## Supported devices
+
+The hardware comes from one Chinese maker: the USB descriptors say HotSpot, and the brand is Mirabox. It's sold under several names. dockctl speaks the "293" family protocol: 15 LCD keys plus a 3-screen side column.
+
+| sold as | USB id | firmware | status |
+|---|---|---|---|
+| **AJAZZ AKP153E** (rev 2) | `0300:3010` | v3 | **tested** (firmware `V3.AKP153E.01.002`) |
+| AJAZZ AKP153R (rev 2) | `0300:3011` | v3 | should work, untested |
+| Mirabox Stream Dock 293S V3 (HSV293SV3) | `6603:1014` | v3 | should work, untested |
+| AJAZZ AKP153E (rev 1) | `0300:1010` | v1 | untested; older protocol variant (85 px keys, press-only events) |
+| AJAZZ AKP153R (rev 1) | `0300:1020` | v1 | untested; as above |
+| AJAZZ AKP153 | `5548:6674` | v1 | untested; as above |
+| Mirabox Stream Dock 293S (HSV293S) | `5548:6670` | v1 | untested; as above |
+
+Not supported:
+
+- **Other Mirabox/AJAZZ layouts**: AKP03, AKP05, N3, N4 and other models with knobs or touch strips.
+- **Elgato Stream Deck**: a different protocol.
+- **Linux and Windows.**
+
+`dockctl doctor` names your device if it's supported. Otherwise `hidutil list` shows each device's vendor and product id in the first two columns; v3 units usually describe themselves as `HOTSPOTEKUSB HID DEMO`. If yours is in an untested row, `dockctl test-pattern` shows whether keys land in the right place and orientation. Please open an issue with the result.
 
 ## Requirements
 
 | what | notes |
 |---|---|
 | **macOS** | uses IOKit HID, launchd and System Events |
-| **Device** | AJAZZ AKP153E, USB `0300:3010` (tested). Other 293-family IDs are wired up but untested: AKP153, AKP153E rev 1, AKP153R, Mirabox HSV293S / 293SV3 |
+| **A supported device** | see above |
 | **uv** | installed for you by `install.sh` if missing |
 | **Xcode Command Line Tools** | optional; lets keystroke actions run under a dedicated launcher (see below). `xcode-select --install` |
 
